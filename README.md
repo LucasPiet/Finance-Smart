@@ -1,21 +1,19 @@
-# Nota Facil
+# Finance Smart
 Software de Automação de Cadastro de Dados e Notas Empresariais com IA
 # História de Usuário
-#### Como uma empresa do ramo do varejo buscando eficiência, 
-#### QUERO implementar um software que automatize os processos de cadastro de Dados/informações e notas fiscais no sistema, isso tudo com o auxílio de IA, 
-####  PARA QUE possamos agilizar e melhorar a precisão de nossos insights para campanhas de publicidade e outros fins, além de diminuir o tempo necessário para realizar tais tarefas.
+#### Como  usuário, eu quero cadastrar uma nova conta a pagar com data de vencimento, para que eu possa organizar minhas despesas e receitas.
+#### QUERO O usuário deseja ajustar e controlar sua vida financeira incluindo no app suas despesas e receitas, 
+####  PARA QUE Ter controle e segurança sobre suas finanças pessoais.
 # Requisitos 
 ### Problemas do dia a dia solucionados:
-
-### Entrada Manual e Demorada de Dados:
-No seguimento do varejo, o fluxo de dados é constante: informações de produtos, clientes, fornecedores, transações de venda, notas fiscais de entrada e saída, etc. A entrada manual desses dados em diferentes sistemas (ERP, CRM, etc.) é extremamente trabalhosa, consome muito tempo dos funcionários e os desvia de outras tarefas mais estratégicas.
+Os principais problemas enfrentados na gestão financeira pessoal, destacando as dificuldades com controle de gastos e propondo soluções através do sistema. O objetivo é fornecer uma ferramenta confiável para organização de receitas e despesas, minimizando riscos de perdas e melhorando a tomada de decisões.
+### Problemas com controle finaceiro:
+Nos dias atuais temos um grande problemas com gastos descontrolados, aonde no fim do mes não sabemos se o salario vai sobrar ou vai ser o suficiente para pagar as contas, como nosso app você ira saber extamente como gastou seu dinheiro e quanto vai sobrar ou dever.
 #### Adversidades tratadas diretamente pelo software:
   ○	Atrasos no processamento de pedidos e na atualização de estoques;
   ○	Dificuldade em obter informações em tempo real para a tomada de decisões;
-#### Erros Humanos na Entrada de Dados:
-  A entrada manual de grandes volumes de dados é propensa a erros: digitação incorreta de códigos de produtos, valores, datas, informações de clientes, etc.
 #### Adversidades tratadas diretamente pelo software:
-  ○	Inconsistências nos registros de estoque, levando a problemas de gestão e perdas financeiras.
+  ○	Inconsistências em saldo de contas levando a problemas de gestão e perdas financeiras.
   ○	Dados incorretos de clientes, dificultando a comunicação e a personalização de ofertas.
   Processamento Lento e Ineficiente de Notas Fiscais:
   O varejo lida com um grande volume de notas fiscais, tanto de entrada (compras de mercadorias) quanto de saída (vendas). O processamento manual dessas notas (extração de informações, lançamento em sistemas,       etc.) é demorado e complexo.
