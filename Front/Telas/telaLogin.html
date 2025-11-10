@@ -1,22 +1,35 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
     <link rel="stylesheet" href="/Front/CSS/styless.css">
-    <title>telaLogin</title>
 </head>
 <body>
-    <card>
-        <h1>Bem Vindo!</h1>
-        <p>Faça seu login para acessar o aplicativo</p>
-    </card>
-    <form>
-        <input type="email" placeholder="Email" required />
-        <input type="password" placeholder="Senha" required /><img src="/Front/assets/openEye.jpg" alt="">
-        <button type="submit">Login</button>
-        <p>Esqueceu a senha? <a href="telaCadastro.html">Esqueci minha senha</a></p>
-        <p>Não tem uma conta? <a href="telaCadastro.html">Cadastre-se</a></p>
-    </form>
-    
+    <main class="auth-container">
+        <div class="auth-card">
+            <header class="auth-header">
+                <h1>Bem-vindo!</h1>
+                <p>Faça login para acessar o aplicativo.</p>
+            </header>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="Digite seu e-mail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" required>
+                </div>
+                
+                <a href="#" class="forgot-password">Esqueci minha senha</a>
+                
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+        </div>
+    </main>
 </body>
 </html>
