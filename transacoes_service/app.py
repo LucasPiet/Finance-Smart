@@ -1,12 +1,12 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel
-from jwt_utils import validar_jwt
-import transacoes
+from auth_service import validar_jwt
+from transacoes_service import transacoes
 
 app = FastAPI(title="Finance Service")
 
-security = HTTPBearer()  # <<< ADICIONA SUPORTE AO CADEADO
+security = HTTPBearer()
 
 class Transacao(BaseModel):
     tipo: str
@@ -14,7 +14,7 @@ class Transacao(BaseModel):
     descricao: str | None = None
     valor: float
 
-def get_user(credentials = Depends(security)):  # <<< AGORA O SWAGGER SABE USAR TOKEN
+def get_user(credentials = Depends(security)):
     token = credentials.credentials
     payload = validar_jwt(token)
 

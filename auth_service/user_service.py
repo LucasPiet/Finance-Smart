@@ -42,7 +42,6 @@ def login_usuario(email, senha):
         user_id = row[0]
         senha_hash = row[1]
 
-        # valida senha
         try:
             ph.verify(senha_hash, senha)
         except Exception:

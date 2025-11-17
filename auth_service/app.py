@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from cadastroUsuario import cadastrar_usuario, login_usuario
+from user_service import cadastrar_usuario, login_usuario
 from jwt_utils import gerar_jwt
 
 app = FastAPI(title="Auth Service")
