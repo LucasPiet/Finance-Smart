@@ -19,9 +19,10 @@ const Login: React.FC = () => {
           <input type="password" id="password" placeholder="Digite sua senha" required />
         </div>
         
-        <a href="#" className="forgot-password">Esqueci minha senha</a>
+        <a href="/cadastro" className="forgot-password-link">Não tem uma conta? Cadastre-se</a>
         
-        <button type="submit" className="btn-primary">Entrar</button>
+        <a className="btn-primary" href="/dashboard/todos">Entrar</a>
+        
       </form>
     </>
   );

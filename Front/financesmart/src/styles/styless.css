@@ -1,4 +1,5 @@
-
+/* Importa uma fonte moderna (Opcional, mas recomendado) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
     /* Cores (inspiradas nas imagens) */
@@ -32,7 +33,8 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* Fonte Inter adicionada */
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--color-bg);
     color: var(--color-text);
     line-height: 1.5;
@@ -43,9 +45,24 @@ a {
     text-decoration: none;
 }
 
+/* --- MELHORIA: Acessibilidade (Estados de Foco) --- */
+.btn-primary:focus, .btn-secondary:focus, .btn-fab:focus,
+.icon-btn:focus, .user-icon-button:focus,
+.tabs-nav a:focus {
+    outline: var(--focus-outline);
+    outline-offset: 2px;
+    border-radius: 4px; /* Adiciona um leve arredondamento ao outline */
+}
+
+input:focus, .form-group-toggle .btn-toggle:focus-within {
+    border-color: var(--color-primary);
+    outline: var(--focus-outline);
+    outline-offset: 1px;
+}
+/* --- Fim da Melhoria --- */
+
+
 /* Telas de Autenticação (Login/Cadastro) */
-
-
 .auth-container {
     display: flex;
     justify-content: center;
@@ -94,7 +111,7 @@ a {
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     font-size: 1rem;
-    background-color: var(--color-bg);
+    background-color: var(--color-bg); /* Fundo sutil para inputs */
 }
 
 .form-group input::placeholder {
@@ -131,8 +148,6 @@ a {
 }
 
 /* 3. Telas Principais do App */
-
-
 .app-screen {
     display: flex;
     flex-direction: column;
@@ -144,6 +159,23 @@ a {
     border-right: 1px solid var(--color-border);
 }
 
+/* --- NOVO: Estilo de Botão de Ícone Genérico --- */
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    color: var(--color-text-muted);
+    font-size: 1.5rem; /* 24px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-btn:hover {
+    color: var(--color-text);
+}
+/* --- Fim do Novo Estilo --- */
+
 .screen-header {
     display: flex;
     justify-content: space-between;
@@ -152,14 +184,26 @@ a {
     background-color: var(--color-surface);
 }
 
-.screen-header h2 {
-    font-size: 1.1rem;
+/* --- NOVO: Seletor de Mês (Baseado na Imagem) --- */
+.month-selector {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
 }
+.month-selector h2 {
+    font-size: 1.1rem;
+    margin: 0;
+    min-width: 100px; /* Evita que o layout "pule" */
+    text-align: center;
+}
+/* --- Fim do Novo Estilo --- */
+
 
 .screen-content {
     flex: 1; /* Ocupa o espaço restante */
     overflow-y: auto; /* Permite scroll */
     padding: var(--spacing-md);
+    padding-bottom: 80px; /* Garante que o FAB não cubra o conteúdo */
 }
 
 /* Card de Balanço */
@@ -167,9 +211,30 @@ a {
     background-color: var(--color-surface);
     border-radius: var(--border-radius);
     padding: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm); /* Reduzido para acomodar os pontos */
     box-shadow: var(--shadow);
 }
+
+/* --- NOVO: Pontos do Carrossel (Baseado na Imagem) --- */
+.carousel-dots {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+.dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-border);
+    margin: 0 4px;
+}
+.dot.active {
+    background-color: var(--color-primary);
+    width: 8px; /* Fica maior quando ativo */
+    height: 8px;
+}
+/* --- Fim do Novo Estilo --- */
+
 
 .balance-card h3 {
     font-size: 0.9rem;
@@ -272,6 +337,12 @@ a {
     font-weight: 600;
     cursor: pointer;
     margin-top: var(--spacing-md);
+    
+    /* --- MELHORIA: Permite ícone + texto --- */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
 }
 
 /* Navegação Inferior */
@@ -284,7 +355,18 @@ a {
     padding: var(--spacing-sm) 0;
     position: sticky;
     bottom: 0;
+    height: 60px; /* Altura fixa */
 }
+
+/* --- NOVO: Itens da barra de navegação --- */
+.nav-item {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+/* --- Fim do Novo Estilo --- */
 
 .btn-fab {
     width: 60px;
@@ -302,7 +384,6 @@ a {
 
 
 /*Tela de Novo Lançamento*/
-
 .screen-header-form {
     display: flex;
     align-items: center;
@@ -385,3 +466,137 @@ a {
     color: var(--color-primary-text);
     font-weight: 600;
 }
+
+/* ================================================= */
+/* Estilos para o Componente UserMenu                */
+/* --- REFATORADO para usar Variáveis CSS ---        */
+/* ================================================= */
+
+.user-menu-container {
+  position: relative; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%; /* Garante que o container ocupe o nav-item */
+}
+
+/* Botão de ícone (canto inferior esquerdo) */
+.user-icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-md); /* Usa variável */
+  color: var(--color-text-muted); /* Usa variável */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%; 
+  width: 100%;
+}
+.user-icon-button:hover {
+    color: var(--color-text); /* Escurece no hover */
+}
+
+.user-icon-button svg {
+  fill: currentColor; /* Herda a cor do botão (text-muted ou text) */
+  width: 28px;
+  height: 28px;
+}
+
+/* O CARD do menu que aparece */
+.user-menu-card {
+  position: absolute;
+  bottom: calc(100% + 10px); 
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-surface); /* Usa variável */
+  border-radius: var(--border-radius); /* Usa variável */
+  box-shadow: var(--shadow); /* Usa variável */
+  padding: var(--spacing-sm) 0; /* Ajustado */
+  width: 280px;
+  z-index: 1000; 
+  display: flex;
+  flex-direction: column;
+}
+
+/* Itens de menu (botões e display de e-mail) */
+.user-menu-item {
+  display: flex;
+  /* --- NOVO: Adiciona ícone --- */
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-md);
+  /* --- Fim da Adição --- */
+  
+  padding: 12px 20px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background-color 0.2s;
+}
+
+.user-menu-item:hover {
+  background-color: var(--color-bg); /* Usa variável */
+}
+
+/* --- NOVO: Wrapper para os textos (Span/Small) --- */
+.user-menu-item-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-menu-item-text span {
+  font-weight: 600;
+  color: var(--color-text); /* Usa variável */
+  font-size: 1rem;
+}
+
+.user-menu-item-text small {
+  font-size: 0.85rem;
+  color: var(--color-text-muted); /* Usa variável */
+  margin-top: 2px;
+}
+
+/* Estilo específico para o display de E-mail */
+.email-display {
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border); /* Usa variável */
+  margin-bottom: var(--spacing-sm);
+  cursor: default;
+}
+
+.email-display p {
+  font-size: 0.9rem;
+  color: var(--color-text-muted); /* Usa variável */
+  margin: 2px 0 0 0;
+}
+
+/* Estilo para o item de apagar conta (vermelho) */
+.delete-account {
+  color: var(--color-negative); /* Usa variável */
+}
+
+.delete-account .user-menu-item-text span {
+  color: var(--color-negative); /* Usa variável */
+}
+
+.delete-account:hover {
+  background-color: #fcebeb; /* Mantido (cor de hover negativa) */
+}
+
+/* Estilos para ícones dentro do menu --- */
+.user-menu-item-icon {
+    font-size: 1.25rem; /* 20px */
+    color: var(--color-text-muted);
+    width: 20px; /* Largura fixa para alinhamento */
+    text-align: center;
+}
+
+.delete-account .user-menu-item-icon {
+    color: var(--color-negative);
+}
+
