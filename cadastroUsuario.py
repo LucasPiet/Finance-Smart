@@ -1,51 +1,54 @@
-from argon2 import PasswordHasher
+import pyodbc
 from DbConnect import ConnDataBase
+from argon2 import PasswordHasher
 
 ph = PasswordHasher()
 
 def cadastrar_usuario(nome, email, senha):
-    db = ConnDataBase()  # ✅ agora não precisa passar IP
-    hash_senha = ph.hash(senha)
-
     try:
+        db = ConnDataBase()
+
+        hashed = ph.hash(senha)
+
         db.cursor.execute("""
             INSERT INTO USUARIOS (NOME, EMAIL, SENHA)
             VALUES (?, ?, ?)
-        """, (nome, email, hash_senha))
-        db.conn.commit()
-        print(f"✅ Usuário '{nome}' cadastrado com sucesso!")
+        """, (nome, email, hashed))
 
-    except Exception as e:
-        print(f"❌ Erro ao cadastrar usuário: {e}")
+        db.conn.commit()
+        return True
+
+    except pyodbc.Error as e:
+        return str(e)
 
     finally:
         db.fechar()
 
 
-def autenticar_usuario(email, senha):
-    db = ConnDataBase()
-
+def login_usuario(email, senha):
     try:
-        db.cursor.execute("SELECT SENHA FROM USUARIOS WHERE EMAIL = ?", (email,))
+        db = ConnDataBase()
+
+        db.cursor.execute("""
+            SELECT ID, SENHA 
+            FROM USUARIOS 
+            WHERE EMAIL = ?
+        """, (email,))
         row = db.cursor.fetchone()
 
         if not row:
-            print("❌ Usuário não encontrado.")
-            return False
+            return None  # usuário não existe
 
-        senha_hash = row[0]
-        ph.verify(senha_hash, senha)
-        print("✅ Login bem-sucedido!")
-        return True
+        user_id = row[0]
+        senha_hash = row[1]
 
-    except Exception as e:
-        print(f"❌ Senha incorreta ou erro: {e}")
-        return False
+        # valida senha
+        try:
+            ph.verify(senha_hash, senha)
+        except Exception:
+            return None
+
+        return {"id": user_id, "email": email}
 
     finally:
         db.fechar()
-
-
-if __name__ == "__main__":
-    cadastrar_usuario("Kaue Breno", "cliente2@teste.com", "minhaSenhaForte123")
-    autenticar_usuario("cliente2@teste.com", "minhaSenhaForte123")

@@ -1,7 +1,7 @@
 import pyodbc
 
 class ConnDataBase:
-    def __init__(self, ip_servidor='10.123.165.78', database='FINANCE_SMART'):
+    def __init__(self, ip_servidor='127.0.0.1', database='FINANCE_SMART'):
         self.server = ip_servidor
         self.database = database
         self.username = 'FinanceSmart'
