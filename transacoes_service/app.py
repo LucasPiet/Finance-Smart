@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel
-from auth_service import validar_jwt
-from transacoes_service import transacoes
+from jwt_utils import validar_jwt
+import transacoes
 
-app = FastAPI(title="Finance Service")
+app = FastAPI(title="Finance Service - Transações")
 
 security = HTTPBearer()
 
