@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from user_service import cadastrar_usuario, login_usuario
 from jwt_utils import gerar_jwt
+import requests
 
 app = FastAPI(title="Auth Service")
 
@@ -36,3 +37,12 @@ def validate(token: str):
     from jwt_utils import validar_jwt
     payload = validar_jwt(token)
     return payload
+
+def enviar_email_reset(email, codigo):
+    payload = {
+        "destinatario": email,
+        "assunto": "Redefinição de senha",
+        "mensagem": f"Seu código de redefinição é: {codigo}"
+    }
+
+    requests.post("http://localhost:8003/send-email", json=payload)
