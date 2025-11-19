@@ -94,5 +94,11 @@ def reset_password(body: ResetPassword):
 
     return {"status": "ok", "message": "Senha redefinida com sucesso"}
 
-
     
+@app.post("/forgot-password")
+def forgot_password(body: ForgotPassword):
+
+    user = buscar_usuario_por_email(body.email)
+
+    if not user:
+        raise HTTPException(404, "Email não encontrado")
