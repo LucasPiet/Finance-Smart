@@ -4,10 +4,12 @@ import { AppRouter } from './router/AppRouter';
 
 // Importa o CSS global para todo o projeto
 import './styles/styless.css';
+import type { LightningCSSOptions } from 'vite';
+
 
 const App: React.FC = () => {
   return (
-    <AppRouter />
+    <AppRouter/>
   );
 };
 

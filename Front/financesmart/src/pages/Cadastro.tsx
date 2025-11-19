@@ -1,7 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; 
 
 const Cadastro: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    console.log("Cadastro simulado bem-sucedido.");
+    
+    // CORREÇÃO: Envia o usuário para fazer login após cadastro
+    navigate('/login'); 
+  };
+
   return (
     <>
       <header className="auth-header">
@@ -9,7 +20,7 @@ const Cadastro: React.FC = () => {
         <p>Crie sua conta para acessar o aplicativo</p>
       </header>
 
-      <form id="register-form">
+      <form id="register-form" onSubmit={handleSubmit}> 
         <div className="form-group">
           <label htmlFor="email">E-mail</label>
           <input type="email" id="email" placeholder="Digite seu e-mail" required />
