@@ -3,19 +3,21 @@ import pyodbc
 
 class ConnDataBase:
     def __init__(self):
-        self.server = os.getenv("DB_HOST", "127.0.0.1")
+        # Nome do serviço do SQL Server no Docker Compose
+        self.server = os.getenv("DB_HOST", "sqlserver")
         self.database = os.getenv("DB_NAME", "FINANCE_SMART")
-        self.username = os.getenv("DB_USER", "FinanceSmart")
+        self.username = os.getenv("DB_USER", "sa")
         self.password = os.getenv("DB_PASSWORD", "Smart123")
 
         try:
             self.conn = pyodbc.connect(
-                f"DRIVER={{SQL Server}};"
-                f"SERVER={self.server};"
+                f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+                f"SERVER={self.server},1433;"
                 f"DATABASE={self.database};"
                 f"UID={self.username};"
                 f"PWD={self.password};"
-                "TrustServerCertificate=yes;"
+                "TrustServerCertificate=Yes;"
+                "Encrypt=yes;"
             )
             self.cursor = self.conn.cursor()
             print(f"✅ Conectado ao banco '{self.database}' ({self.server})")

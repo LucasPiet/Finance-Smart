@@ -1,17 +1,19 @@
+import os
 import jwt
 from datetime import datetime, timedelta
 
-SECRET_KEY = "MEGA_SECRET"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_HOURS = 24
+RESET_TOKEN_EXPIRE_MINUTES = 15
 
 def gerar_jwt(user_id, email):
     payload = {
         "user_id": user_id,
         "email": email,
-        "exp": datetime.utcnow() + timedelta(hours=24)
+        "exp": datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
 
 def validar_jwt(token):
     try:
@@ -19,15 +21,13 @@ def validar_jwt(token):
     except Exception:
         return None
 
-
 def gerar_token_reset(user_id, email):
     payload = {
         "user_id": user_id,
         "email": email,
-        "exp": datetime.utcnow() + timedelta(minutes=15)
+        "exp": datetime.utcnow() + timedelta(minutes=RESET_TOKEN_EXPIRE_MINUTES)
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-
 
 def validar_jwt_reset(token):
     try:

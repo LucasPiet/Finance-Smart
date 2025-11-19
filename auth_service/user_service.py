@@ -5,6 +5,7 @@ from argon2 import PasswordHasher
 ph = PasswordHasher()
 
 def cadastrar_usuario(nome, email, senha):
+    db = None
     try:
         db = ConnDataBase()
 
@@ -22,10 +23,12 @@ def cadastrar_usuario(nome, email, senha):
         return str(e)
 
     finally:
-        db.fechar()
+        if db:
+            db.fechar()
 
 
 def login_usuario(email, senha):
+    db = None
     try:
         db = ConnDataBase()
 
@@ -50,9 +53,12 @@ def login_usuario(email, senha):
         return {"id": user_id, "email": email}
 
     finally:
-        db.fechar()
+        if db:
+            db.fechar()
+
 
 def buscar_usuario_por_email(email):
+    db = None
     try:
         db = ConnDataBase()
 
@@ -74,10 +80,12 @@ def buscar_usuario_por_email(email):
         }
 
     finally:
-        db.fechar()
+        if db:
+            db.fechar()
 
 
 def atualizar_senha(user_id, nova_senha):
+    db = None
     try:
         db = ConnDataBase()
 
@@ -96,4 +104,5 @@ def atualizar_senha(user_id, nova_senha):
         return str(e)
 
     finally:
-        db.fechar()
+        if db:
+            db.fechar()

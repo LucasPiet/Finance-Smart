@@ -9,9 +9,11 @@ services:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=Smart123
     ports:
-      - "1433:1433"
+      - "1434:1433"  # Porta externa 1434, interna 1433
     volumes:
       - sql_data:/var/opt/mssql
+      - ./sql/init-user.sql:/docker-entrypoint-initdb.d/init-user.sql
+    restart: unless-stopped
 
   auth_service:
     build: ./auth_service
@@ -19,14 +21,17 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - DB_SERVER=sqlserver
+      - DB_SERVER=sqlserver          # Comunica-se via rede Docker (porta interna)
       - DB_USER=sa
       - DB_PASSWORD=Smart123
       - DB_DATABASE=FINANCE_SMART
       - EMAIL_SERVICE=http://email_service:8003/send-email
+      - ENVIRONMENT=production
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       - sqlserver
       - email_service
+    restart: unless-stopped
 
   transacoes_service:
     build: ./transacoes_service
@@ -36,16 +41,21 @@ services:
     environment:
       - DB_SERVER=sqlserver
       - DB_USER=sa
-      - DB_PASSWORD=YourPassword123
+      - DB_PASSWORD=Smart123
       - DB_DATABASE=FINANCE_SMART
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       - sqlserver
+    restart: unless-stopped
 
   email_service:
     build: ./email_service
     container_name: email_service
     ports:
       - "8003:8003"
+    env_file:
+      - ./.env   # caminho relativo à raiz do docker-compose
+    restart: unless-stopped
 
 volumes:
   sql_data:

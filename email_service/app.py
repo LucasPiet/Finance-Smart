@@ -10,7 +10,7 @@ class EmailRequest(BaseModel):
     mensagem: str
 
 @app.post("/send-email")
-def send_email(body: EmailRequest):
+def send_email_endpoint(body: EmailRequest):
     result = enviar_email(
         body.destinatario,
         body.assunto,
