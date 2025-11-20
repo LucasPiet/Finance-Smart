@@ -1,29 +1,86 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { api } from '../../services/api';
+
+interface DashboardContext {
+  currentDate: Date;
+}
+
+// Interface atualizada (Minúsculas)
+interface Transacao {
+  id: number;
+  tipo: string;
+  categoria: string;
+  descricao: string;
+  valor: number;
+  data_transacao: string;
+}
 
 const Despesas: React.FC = () => {
-  // Lógica de estado para verificar se há despesas
-  const temDespesas = true; // Mude para false para ver o estado vazio
+  const { currentDate } = useOutletContext<DashboardContext>();
+  
+  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const carregar = async () => {
+      try {
+        const lista = await api.getTransacoes();
+        setTransacoes(lista);
+      } catch (error) {
+        console.error("Erro ao carregar despesas:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    carregar();
+  }, []);
+
+  // Filtro corrigido
+  const despesas = transacoes.filter(t => {
+    if (!t.data_transacao) return false;
+
+    const dataString = t.data_transacao.replace(' ', 'T');
+    const dataTransacao = new Date(dataString);
+
+    if (isNaN(dataTransacao.getTime())) return false;
+
+    return (
+      t.tipo === 'D' && // 'tipo' minúsculo
+      dataTransacao.getMonth() === currentDate.getMonth() &&
+      dataTransacao.getFullYear() === currentDate.getFullYear()
+    );
+  });
+
+  if (loading) return <div style={{textAlign: 'center', padding: '20px'}}>Carregando...</div>;
+
+  if (despesas.length === 0) {
+    return (
+      <div className="empty-state">
+        <p>Não há despesas neste mês.</p>
+      </div>
+    );
+  }
 
   return (
     <>
-      {temDespesas ? (
-        <article className="transaction-item expense">
-          <div className="item-icon">🕒</div>
+      {despesas.map((item) => (
+        <article key={item.id} className="transaction-item expense">
+          <div className="item-icon">🛑</div>
           <div className="item-details">
-            <strong>Despesa teste</strong>
-            <span>23/05/2025</span>
+            <strong>{item.descricao || item.categoria}</strong>
+            <span>
+              {new Date(item.data_transacao.replace(' ', 'T')).toLocaleDateString('pt-BR')}
+            </span>
           </div>
           <div className="item-amount">
-            <span className="negative">- R$ 100,00</span>
-            <small>1/2</small>
+            <span className="negative">
+              - {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valor)}
+            </span>
+            <small>{item.categoria}</small>
           </div>
         </article>
-      ) : (
-        <div className="empty-state">
-          <p>Não há despesas cadastradas neste mês</p>
-          <button className="btn-secondary">Cadastrar despesa</button>
-        </div>
-      )}
+      ))}
     </>
   );
 };

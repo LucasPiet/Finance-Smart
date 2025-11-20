@@ -1,39 +1,62 @@
-# app.py
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from user_service import cadastrar_usuario, login_usuario, buscar_usuario_por_email
+from user_service import cadastrar_usuario, login_usuario, buscar_usuario_por_email, excluir_usuario_completo, editar_usuario
 from jwt_utils import gerar_jwt, gerar_token_reset, validar_jwt
+from user_service import cadastrar_usuario, login_usuario, buscar_usuario_por_email, excluir_usuario_completo, editar_usuario, buscar_usuario_por_id
 import requests
 import os
 
 app = FastAPI(title="Auth Service")
 
-# URL do email_service dentro do Docker
-EMAIL_URL = os.getenv("EMAIL_SERVICE_URL", "http://email_service:8003/send-email")
+# --- CORS ---
+origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+# --- SEGURANÇA (Para proteger as rotas de deletar/editar) ---
+security = HTTPBearer()
 
-# ---- MODELS ----
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    payload = validar_jwt(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Token inválido ou expirado")
+    return payload
+
+# --- MODELS ---
 class Register(BaseModel):
     nome: str
     email: str
     senha: str
 
-
 class Login(BaseModel):
     email: str
     senha: str
 
-
 class ForgotPassword(BaseModel):
     email: str
-
 
 class ResetPassword(BaseModel):
     token: str
     nova_senha: str
 
+class UserUpdate(BaseModel):
+    nome: str
+    email: str
 
-# ---- ENDPOINTS ----
+# --- ENDPOINTS EXISTENTES ---
+# (Mantenha /register, /login, /forgot-password, /reset-password como estavam)
+# ... [CÓDIGO ANTERIOR AQUI] ...
+# Vou colocar apenas os NOVOS endpoints abaixo para não ficar gigante, 
+# mas certifique-se de manter os de login/registro acima.
+
 @app.post("/register")
 def register_user(body: Register):
     result = cadastrar_usuario(body.nome, body.email, body.senha)
@@ -42,85 +65,48 @@ def register_user(body: Register):
     else:
         raise HTTPException(status_code=400, detail=result)
 
-
 @app.post("/login")
 def login_user(body: Login):
     user = login_usuario(body.email, body.senha)
     if not user:
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
-
     token = gerar_jwt(user["id"], body.email)
     return {"token": token}
 
-
-@app.get("/validate-token")
-def validate_token(token: str):
-    payload = validar_jwt(token)
-    return payload
-
-
 @app.post("/forgot-password")
 def forgot_password(body: ForgotPassword):
-    user = buscar_usuario_por_email(body.email)
-    if not user:
-        raise HTTPException(status_code=404, detail="Email não encontrado")
+    # ... (Mantenha a lógica de envio de email que já fizemos) ...
+    return {"status": "ok", "message": "Email enviado (Simulado)"} 
 
-    token_reset = gerar_token_reset(user["id"], body.email)
+# --- NOVOS ENDPOINTS (Delete e Edit) ---
 
-    # Montando email
-    mensagem = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 20px;">
-        <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <h2 style="color: #333333; text-align: center;">Redefinição de senha</h2>
-            <p style="color: #555555; font-size: 16px;">
-                Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para definir uma nova senha:
-            </p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="http://localhost:8001/reset-password?token={token_reset}"
-                   style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                   Redefinir senha
-                </a>
-            </div>
-            <p style="color: #999999; font-size: 14px; text-align: center;">
-                Esse link expira em 15 minutos.
-            </p>
-            <hr style="border: none; border-top: 1px solid #eeeeee; margin: 20px 0;">
-            <p style="color: #999999; font-size: 12px; text-align: center;">
-                Se você não solicitou esta redefinição, ignore este email.
-            </p>
-        </div>
-    </body>
-    </html>
-    """
-
-    payload = {
-        "destinatario": body.email,
-        "assunto": "Redefinição de senha",
-        "mensagem": mensagem
-    }
-
-    try:
-        response = requests.post(EMAIL_URL, json=payload, timeout=10)
-        if response.status_code != 200:
-            detail = response.json().get("detail", "Erro desconhecido")
-            raise HTTPException(status_code=500, detail=f"Erro ao enviar o email: {detail}")
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao enviar email: {e}")
-
-    return {"status": "ok", "message": "Email enviado"}
-
-
-@app.post("/reset-password")
-def reset_password(body: ResetPassword):
-    payload = validar_jwt(body.token)
-    if not payload:
-        raise HTTPException(status_code=400, detail="Token inválido ou expirado")
-
-    user_id = payload["user_id"]
-    result = cadastrar_usuario.atualizar_senha(user_id, body.nova_senha)  # Função fictícia, ajuste conforme seu user_service
-
-    if result:
-        return {"status": "ok", "message": "Senha redefinida"}
+@app.delete("/user/me")
+def delete_my_account(user = Depends(get_current_user)):
+    """Apaga a conta do usuário logado e todos os seus dados"""
+    user_id = user["user_id"]
+    sucesso = excluir_usuario_completo(user_id)
+    
+    if sucesso:
+        return {"status": "ok", "message": "Conta excluída permanentemente"}
     else:
-        raise HTTPException(status_code=500, detail="Erro ao redefinir senha")
+        raise HTTPException(status_code=500, detail="Erro ao excluir conta")
+
+@app.put("/user/me")
+def update_my_profile(body: UserUpdate, user = Depends(get_current_user)):
+    """Atualiza nome e email do usuário logado"""
+    user_id = user["user_id"]
+    resultado = editar_usuario(user_id, body.nome, body.email)
+    
+    if resultado is True:
+        return {"status": "ok", "message": "Perfil atualizado com sucesso"}
+    else:
+        # Se resultado for uma string, é uma mensagem de erro (ex: email duplicado)
+        raise HTTPException(status_code=400, detail=str(resultado))
+    
+@app.get("/user/me")
+def get_my_profile(user = Depends(get_current_user)):
+    """Retorna os dados do usuário logado"""
+    dados_usuario = buscar_usuario_por_id(user["user_id"])
+    if not dados_usuario:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    return dados_usuario

@@ -1,29 +1,88 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { api } from '../../services/api';
+
+interface DashboardContext {
+  currentDate: Date;
+}
+
+// Interface atualizada (Minúsculas)
+interface Transacao {
+  id: number;
+  tipo: string;
+  categoria: string;
+  descricao: string;
+  valor: number;
+  data_transacao: string;
+}
 
 const Receitas: React.FC = () => {
-  // Lógica de estado para verificar se há receitas
-  const temReceitas = true; // Mude para false para ver o estado vazio
+  const { currentDate } = useOutletContext<DashboardContext>();
+  
+  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const carregar = async () => {
+      try {
+        const lista = await api.getTransacoes();
+        setTransacoes(lista);
+      } catch (error) {
+        console.error("Erro ao carregar receitas:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    carregar();
+  }, []);
+
+  // Filtro corrigido (chaves minúsculas e correção de data)
+  const receitas = transacoes.filter(t => {
+    if (!t.data_transacao) return false;
+
+    const dataString = t.data_transacao.replace(' ', 'T');
+    const dataTransacao = new Date(dataString);
+
+    if (isNaN(dataTransacao.getTime())) return false;
+
+    return (
+      t.tipo === 'C' && // 'tipo' minúsculo
+      dataTransacao.getMonth() === currentDate.getMonth() &&
+      dataTransacao.getFullYear() === currentDate.getFullYear()
+    );
+  });
+
+  if (loading) return <div style={{textAlign: 'center', padding: '20px'}}>Carregando...</div>;
+
+  if (receitas.length === 0) {
+    return (
+      <div className="empty-state">
+        <p>Não há receitas neste mês.</p>
+      </div>
+    );
+  }
 
   return (
     <>
-      {temReceitas ? (
-        <article className="transaction-item income">
-          <div className="item-icon">🕒</div>
+      {receitas.map((item) => (
+        <article key={item.id} className="transaction-item income">
+          <div className="item-icon">💰</div>
           <div className="item-details">
-            <strong>Receita teste</strong>
-            <span>23/05/2025</span>
+            {/* Usando chaves minúsculas: descricao, categoria */}
+            <strong>{item.descricao || item.categoria}</strong>
+            <span>
+              {new Date(item.data_transacao.replace(' ', 'T')).toLocaleDateString('pt-BR')}
+            </span>
           </div>
           <div className="item-amount">
-            <span className="positive">+ R$ 100,00</span>
-            <small>1/2</small>
+            <span className="positive">
+              {/* Usando chave minúscula: valor */}
+              + {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valor)}
+            </span>
+            <small>{item.categoria}</small>
           </div>
         </article>
-      ) : (
-        <div className="empty-state">
-          <p>Não há receitas cadastradas neste mês</p>
-          <button className="btn-secondary">Cadastrar receitas</button>
-        </div>
-      )}
+      ))}
     </>
   );
 };

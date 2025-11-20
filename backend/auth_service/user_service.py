@@ -4,6 +4,62 @@ from argon2 import PasswordHasher
 
 ph = PasswordHasher()
 
+def buscar_usuario_por_id(user_id):
+    db = ConnDataBase()
+    try:
+        db.cursor.execute("SELECT ID, NOME, EMAIL FROM USUARIOS WHERE ID = ?", (user_id,))
+        row = db.cursor.fetchone()
+        
+        if not row:
+            return None
+
+        return {
+            "id": row[0],
+            "nome": row[1],
+            "email": row[2]
+        }
+    finally:
+        db.fechar()
+
+def excluir_usuario_completo(user_id):
+    db = ConnDataBase()
+    try:
+        # 1. Apagar Transações (para não dar erro de chave estrangeira)
+        db.cursor.execute("DELETE FROM TRANSACOES WHERE USUARIO_ID = ?", (user_id,))
+        
+        # 2. Apagar Saldo
+        db.cursor.execute("DELETE FROM SALDOS WHERE USUARIO_ID = ?", (user_id,))
+        
+        # 3. Finalmente, apagar o Usuário
+        db.cursor.execute("DELETE FROM USUARIOS WHERE ID = ?", (user_id,))
+        
+        db.conn.commit()
+        return True
+    except Exception as e:
+        print(f"Erro ao excluir usuário: {e}")
+        db.conn.rollback()
+        return False
+    finally:
+        db.fechar()
+
+def editar_usuario(user_id, novo_nome, novo_email):
+    db = ConnDataBase()
+    try:
+        db.cursor.execute("""
+            UPDATE USUARIOS 
+            SET NOME = ?, EMAIL = ?, ATUALIZADO = SYSUTCDATETIME()
+            WHERE ID = ?
+        """, (novo_nome, novo_email, user_id))
+        
+        db.conn.commit()
+        return True
+    except pyodbc.IntegrityError:
+        return "Este e-mail já está em uso por outro usuário."
+    except Exception as e:
+        return str(e)
+    finally:
+        db.fechar()
+
 def cadastrar_usuario(nome, email, senha):
     db = None
     try:
