@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pyjwt
+argon2-cffi
+pyodbc
+requests
