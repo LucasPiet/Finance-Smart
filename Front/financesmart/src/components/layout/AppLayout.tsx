@@ -1,20 +1,26 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
-import UserMenu from '../UserMenu/UserMenu'; // Certifique-se que o caminho está correto baseada na sua pasta
+import UserMenu from '../UserMenu/UserMenu';
+import AppMenu from '../AppMenu/AppMenu';
 
 // Ícones SVG
 const IconChevronLeft = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>;
 const IconChevronRight = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>;
 const IconCalendar = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>;
-const IconMenu = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>;
-const IconPlus = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="5" y1="12" x2="19" y2="12"></line><line x1="12" y1="5" x2="12" y2="19"></line></svg>;
+const IconPlus = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
 
 export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
+  
+  // 1. Estado para controlar a Data Atual
+  const [currentDate, setCurrentDate] = useState(new Date());
+  
+  // 2. Referência para o input de data invisível
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
+  // Lógica de Logout/Delete (Mantida)
   const handleLogout = () => {
     console.log("Logout efetuado");
-    // CORREÇÃO: Redireciona explicitamente para login
     navigate('/login'); 
   };
 
@@ -25,19 +31,102 @@ export const AppLayout: React.FC = () => {
     }
   };
 
+  const formattedDate = new Intl.DateTimeFormat('pt-BR', { 
+    month: 'long', 
+    year: 'numeric' 
+  }).format(currentDate);
+  
+
+  const displayDate = formattedDate
+    .replace(' de ', '/')
+    .replace(/^\w/, (c) => c.toUpperCase());
+
+  // Voltar 1 mês
+  const handlePrevMonth = () => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setCurrentDate(newDate);
+  };
+
+  // Avançar 1 mês
+  const handleNextMonth = () => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setCurrentDate(newDate);
+  };
+
+  // Abrir o seletor de data nativo
+  const handleCalendarClick = () => {
+    if (dateInputRef.current) {
+      // showPicker() é moderno e abre o calendário nativo do navegador/celular
+      if ('showPicker' in dateInputRef.current) {
+        (dateInputRef.current as any).showPicker();
+      } else {
+        dateInputRef.current.click(); // Fallback para navegadores antigos
+      }
+    }
+  };
+
+  // Quando o usuário escolhe uma data específica no calendário
+  const handleDateSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      // e.target.value vem como "YYYY-MM-DD", precisamos converter para Date mas manter o fuso local
+      const [year, month, day] = e.target.value.split('-').map(Number);
+      const newDate = new Date(year, month - 1, day);
+      setCurrentDate(newDate);
+    }
+  };
+
+  // Formata a data atual para o valor do input (YYYY-MM-DD)
+  const dateInputValue = currentDate.toISOString().split('T')[0];
+
   return (
     <div className="app-screen">
       <header className="screen-header">
-        <button className="icon-btn" aria-label="Mês anterior"><IconChevronLeft /></button>
+        
+        {/* Botão Anterior */}
+        <button className="icon-btn" aria-label="Mês anterior" onClick={handlePrevMonth}>
+          <IconChevronLeft />
+        </button>
+        
         <div className="month-selector">
-          <h2>Abril/2025</h2>
+          {/* Exibe a data formatada dinamicamente */}
+          <h2>{displayDate}</h2>
         </div>
-        <button className="icon-btn" aria-label="Próximo mês"><IconChevronRight /></button>
-        <button className="icon-btn" aria-label="Selecionar data"><IconCalendar /></button>
+
+        {/* Botão Próximo */}
+        <button className="icon-btn" aria-label="Próximo mês" onClick={handleNextMonth}>
+          <IconChevronRight />
+        </button>
+
+        {/* Botão Calendário e Input Invisível */}
+        <div style={{ position: 'relative' }}>
+          <button className="icon-btn" aria-label="Selecionar data" onClick={handleCalendarClick}>
+            <IconCalendar />
+          </button>
+          
+          {/* Input invisível que faz a mágica acontecer */}
+          <input 
+            type="date" 
+            ref={dateInputRef}
+            value={dateInputValue}
+            onChange={handleDateSelect}
+            style={{ 
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              width: '100%', 
+              height: '100%', 
+              opacity: 0, 
+              pointerEvents: 'none' // O clique é gerenciado pelo botão, não pelo input direto
+            }}
+          />
+        </div>
+
       </header>
 
       <main className="screen-content">
-        {/* Card de Balanço */}
+        {/* O contexto do Outlet pode passar a data para as páginas filhas no futuro */}
         <section className="balance-card">
           <h3>Balanço do mês</h3>
           <p className="balance-total">R$ 0,00</p>
@@ -53,23 +142,19 @@ export const AppLayout: React.FC = () => {
           </div>
         </section>
 
-        {/* Navegação por Abas */}
         <nav className="tabs-nav">
           <ul>
-            {/* Aponta para a raiz do AppLayout, que é /dashboard */}
             <li><NavLink to="/dashboard" end>Todos</NavLink></li> 
-            {/* Rotas relativas funcionam automaticamente baseadas no pai */}
             <li><NavLink to="receitas">Receitas</NavLink></li>
             <li><NavLink to="despesas">Despesas</NavLink></li>
           </ul>
         </nav>
 
         <section className="transactions-list">
-          <Outlet />
+          <Outlet context={{ currentDate }} /> {/* Passamos a data para as rotas filhas */}
         </section>
       </main>
 
-      {/* Rodapé com Navegação */}
       <footer className="app-footer-nav">
         <div className="nav-item">
           <UserMenu
@@ -84,9 +169,7 @@ export const AppLayout: React.FC = () => {
           </Link>
         </div>
         <div className="nav-item">
-          <button className="icon-btn" aria-label="Menu">
-            <IconMenu />
-          </button>
+          <AppMenu />
         </div>
       </footer>
     </div>

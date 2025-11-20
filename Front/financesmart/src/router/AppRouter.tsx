@@ -14,8 +14,8 @@ const Todos = lazy(() => import('../pages/Dashboard/Todos'));
 const Receitas = lazy(() => import('../pages/Dashboard/Receitas'));
 const Despesas = lazy(() => import('../pages/Dashboard/Despesas'));
 const NovoLancamento = lazy(() => import('../pages/NovoLancamento'));
+const SobreNos = lazy(() => import('../pages/SobreNos')); // <--- Importe aqui
 
-// Fallback para o Suspense
 const Loading: React.FC = () => <div style={{ padding: '20px', textAlign: 'center' }}>Carregando...</div>;
 
 export const AppRouter: React.FC = () => {
@@ -23,29 +23,29 @@ export const AppRouter: React.FC = () => {
     <Suspense fallback={<Loading />}>
       <Routes>
         
-        {/* Redireciona a raiz (/) para o Login (/login) */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Rotas de Autenticação (Públicas) */}
+        {/* Rotas de Autenticação */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/alterar-senha" element={<AlterarSenha />} /> 
         </Route>
 
-        {/* Rotas do Painel Principal (Privadas) - Prefixo /dashboard */}
+        {/* Rotas do Painel Principal */}
         <Route path="/dashboard" element={<AppLayout />}>
           <Route index element={<Todos />} /> 
           <Route path="receitas" element={<Receitas />} />
           <Route path="despesas" element={<Despesas />} />
         </Route>
 
-        {/* Rotas de Formulário (Tela Cheia/Modal) */}
+        {/* Rotas com Layout de Formulário (Cabeçalho com 'Voltar') */}
         <Route element={<FormLayout />}>
           <Route path="/novo-lancamento" element={<NovoLancamento />} />
+          {/* Adicione a rota aqui para ganhar o botão de voltar automaticamente */}
+          <Route path="/sobre-nos" element={<SobreNos />} /> 
         </Route>
         
-        {/* Rota 404 */}
         <Route path="*" element={<div style={{ padding: '20px' }}><h1>404 | Página não encontrada</h1></div>} />
       </Routes>
     </Suspense>
