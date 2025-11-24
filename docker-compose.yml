@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   auth_service:
-    build: ./auth_service
+    build: ./backend/auth_service
     container_name: auth_service
     ports:
       - "8001:8001"
@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
 
   transacoes_service:
-    build: ./transacoes_service
+    build: ./backend/transacoes_service
     container_name: transacoes_service
     ports:
       - "8002:8002"
@@ -49,7 +49,7 @@ services:
     restart: unless-stopped
 
   email_service:
-    build: ./email_service
+    build: ./backend/email_service
     container_name: email_service
     ports:
       - "8003:8003"
