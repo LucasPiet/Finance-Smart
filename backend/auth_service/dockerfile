@@ -1,49 +1,48 @@
-# Dockerfile do auth_service
-FROM python:3.11-slim
+# Utiliza uma imagem base oficial do Python
+FROM python:3.11-slim-bookworm
 
+# Define variáveis de ambiente para evitar interação durante a instalação
 ENV DEBIAN_FRONTEND=noninteractive
+ENV ACCEPT_EULA=Y
 
-# Instala dependências do sistema
+# Atualiza o sistema e instala dependências necessárias para o ODBC e sistema
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl \
-        gnupg \
-        unixodbc \
-        unixodbc-dev \
-        libgssapi-krb5-2 \
-        libssl-dev \
-        libc6-dev \
-        apt-transport-https \
+    curl \
+    gnupg \
+    unixodbc \
+    unixodbc-dev \
+    libgssapi-krb5-2 \
+    libssl-dev \
+    libc6-dev \
+    apt-transport-https \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Adiciona chave Microsoft
-RUN curl https://packages.microsoft.com/keys/microsoft.asc \
-    | gpg --dearmor \
-    | tee /usr/share/keyrings/microsoft-prod.gpg > /dev/null
+# Adiciona a chave e o repositório da Microsoft para o driver ODBC
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /usr/share/keyrings/microsoft-prod.gpg > /dev/null \
+    && curl https://packages.microsoft.com/config/debian/12/prod.list | tee /etc/apt/sources.list.d/mssql-release.list
 
-# Adiciona repositório Microsoft
-RUN curl https://packages.microsoft.com/config/debian/12/prod.list \
-    | tee /etc/apt/sources.list.d/mssql-release.list
-
-# Instala driver ODBC 18 e ferramentas
-RUN apt-get update && ACCEPT_EULA=Y apt-get install -y \
-        msodbcsql18 \
-        mssql-tools18 \
+# Instala o driver MS ODBC 18 e ferramentas do SQL Server
+RUN apt-get update && apt-get install -y \
+    msodbcsql18 \
+    mssql-tools18 \
     && rm -rf /var/lib/apt/lists/*
 
-# Adiciona mssql-tools ao PATH
+# Adiciona o mssql-tools ao PATH
 ENV PATH="$PATH:/opt/mssql-tools18/bin"
 
-# Define diretório de trabalho
+# Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia arquivos do projeto
-COPY . .
-
-# Instala dependências Python
+# Copia o ficheiro de dependências e instala
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expõe porta do serviço
+# Copia o restante do código da aplicação
+COPY . .
+
+# Expõe a porta que o serviço utiliza (conforme docker-compose)
 EXPOSE 8001
 
-# Comando para rodar o FastAPI com hot reload
+# Comando de inicialização
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]

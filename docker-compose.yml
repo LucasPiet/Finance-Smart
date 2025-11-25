@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  # --- BANCO DE DADOS ---
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Smart123
+    ports:
+      - "1434:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Smart123 -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 10
+      start_period: 10s
+
+  # --- INICIALIZADOR DO BANCO ---
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      # Ajuste os caminhos relativos à raiz
+      - ./backend/queries/tabelas_e_banco/CRIACAO_DB_E_TABELAS.sql:/usr/src/app/init.sql
+      - ./backend/queries/triggers/TR_GERENCIA_SALDO.sql:/usr/src/app/triggers.sql
+      - ./backend/import-data.sh:/usr/src/app/import-data.sh
+    command: /bin/bash /usr/src/app/import-data.sh
+
+  # --- BACKEND SERVICES ---
+  email_service:
+    build: ./backend/email_service
+    container_name: email_service
+    ports:
+      - "8003:8003"
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  auth_service:
+    build: ./backend/auth_service
+    container_name: auth_service
+    ports:
+      - "8001:8001"
+    environment:
+      - DB_SERVER=sqlserver
+      - DB_USER=sa
+      - DB_PASSWORD=Smart123
+      - DB_DATABASE=FINANCE_SMART
+      - EMAIL_SERVICE=http://email_service:8003/send-email
+      - SECRET_KEY=cc34beec3dd8ebc4509461b48691dcb6bd2c5643b997125e473faa98a0d6d7dc
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+      email_service:
+        condition: service_started
+    restart: unless-stopped
+
+  transacoes_service:
+    build: ./backend/transacoes_service
+    container_name: transacoes_service
+    ports:
+      - "8002:8002"
+    environment:
+      - DB_SERVER=sqlserver
+      - DB_USER=sa
+      - DB_PASSWORD=Smart123
+      - DB_DATABASE=FINANCE_SMART
+      - SECRET_KEY=cc34beec3dd8ebc4509461b48691dcb6bd2c5643b997125e473faa98a0d6d7dc
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # --- FRONTEND ---
+  frontend:
+    build: ./Front/financesmart
+    container_name: financesmart-front
+    ports:
+      - "5173:80"
+    depends_on:
+      - auth_service
+      - transacoes_service
+
+volumes:
+  sql_data:
