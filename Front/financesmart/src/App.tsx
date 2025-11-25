@@ -1,18 +1,16 @@
-import { useState } from 'react'
+// src/App.tsx
 import React from 'react';
 import { AppRouter } from './router/AppRouter';
-
-// Importa o CSS global para todo o projeto
+import { TransactionsProvider } from './context/TransactionContext'; // <--- Importe aqui
 import './styles/styless.css';
-import type { LightningCSSOptions } from 'vite';
-
 
 const App: React.FC = () => {
   return (
-    <AppRouter/>
+    // Envolva o AppRouter com o Provider
+    <TransactionsProvider>
+      <AppRouter/>
+    </TransactionsProvider>
   );
 };
 
-
-
-export default App
+export default App;

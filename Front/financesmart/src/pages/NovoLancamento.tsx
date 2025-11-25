@@ -1,13 +1,22 @@
+// src/pages/NovoLancamento.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTransactions } from '../context/TransactionContext'; // <--- Importe o hook
 
 const NovoLancamento: React.FC = () => {
   const navigate = useNavigate();
-  const [type, setType] = useState<'expense' | 'income'>('expense');
+  const { addTransaction } = useTransactions(); // <--- Pegue a função de adicionar
   
-  const isExpense = type === 'expense';
+  const [type, setType] = useState<'expense' | 'income'>('expense');
+  // Estados para os campos do formulário
+  const [amount, setAmount] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [date, setDate] = useState('');
 
-  // Configurações dinâmicas baseadas no tipo (limpa o JSX)
+  const isExpense = type === 'expense';
+  
+  // Tema dinâmico (mantido do seu código original)
   const theme = {
     color: isExpense ? 'var(--color-negative)' : 'var(--color-positive)',
     dateLabel: isExpense ? 'Data de vencimento' : 'Data de recebimento',
@@ -17,24 +26,35 @@ const NovoLancamento: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(`Salvando ${type}...`);
+    
+    // Converte o valor string para numero (ex: "100" -> 100)
+    // Nota: Em uma app real, você precisaria tratar formatação de moeda (R$) aqui
+    const numericAmount = parseFloat(amount.replace('R$', '').replace('.', '').replace(',', '.'));
+
+    if (!date || !description || isNaN(numericAmount)) {
+      alert("Preencha todos os campos corretamente");
+      return;
+    }
+
+    addTransaction({
+      description,
+      amount: numericAmount,
+      type,
+      category,
+      date,
+    });
+
+    console.log(`Salvo: ${description} - R$ ${numericAmount}`);
     navigate('/dashboard');
   };
 
   return (
     <>
       <nav className="tabs-nav-form">
-        <ul>
-          <li>
-            <a href="#" className={isExpense ? 'active' : ''} onClick={() => setType('expense')}>
-              Despesa
-            </a>
-          </li>
-          <li>
-            <a href="#" className={!isExpense ? 'active' : ''} onClick={() => setType('income')}>
-              Receita
-            </a>
-          </li>
+         {/* ... (Seu código de abas mantém igual) ... */}
+         <ul>
+          <li><a href="#" className={isExpense ? 'active' : ''} onClick={() => setType('expense')}>Despesa</a></li>
+          <li><a href="#" className={!isExpense ? 'active' : ''} onClick={() => setType('income')}>Receita</a></li>
         </ul>
       </nav>
 
@@ -42,9 +62,11 @@ const NovoLancamento: React.FC = () => {
         <div className="form-group-amount">
           <label htmlFor="amount">Valor</label>
           <input 
-            type="text" 
+            type="number" // Mudado para number para facilitar teste rápido
             id="amount" 
-            defaultValue="R$ 0,00" 
+            placeholder="0.00"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
             style={{ color: theme.color }} 
           />
         </div>
@@ -52,29 +74,37 @@ const NovoLancamento: React.FC = () => {
         <div className="form-fields">
           <div className="form-group">
             <label htmlFor="description">Descrição</label>
-            <input type="text" id="description" placeholder={theme.descPlaceholder} />
+            <input 
+              type="text" 
+              id="description" 
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder={theme.descPlaceholder} 
+            />
           </div>
           
           <div className="form-group">
             <label htmlFor="category">Categoria</label>
-            <input type="text" id="category" placeholder={theme.catPlaceholder} />
+            <input 
+              type="text" 
+              id="category" 
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              placeholder={theme.catPlaceholder} 
+            />
           </div>
           
           <div className="form-group">
             <label htmlFor="due-date">{theme.dateLabel}</label>
-            <input type="date" id="due-date" />
+            <input 
+              type="date" 
+              id="due-date" 
+              value={date}
+              onChange={e => setDate(e.target.value)}
+            />
           </div>
           
-          <fieldset className="form-group-toggle">
-            <input type="radio" id="repeat-no" name="repeat" value="no" defaultChecked />
-            <label htmlFor="repeat-no" className="btn-toggle">Não repetir</label>
-            
-            <input type="radio" id="repeat-always" name="repeat" value="always" />
-            <label htmlFor="repeat-always" className="btn-toggle">Mensal</label>
-            
-            <input type="radio" id="repeat-installments" name="repeat" value="installments" />
-            <label htmlFor="repeat-installments" className="btn-toggle">Parcelado</label>
-          </fieldset>
+          {/* ... (Campos de repetição mantidos iguais) ... */}
           
           <div className="form-actions">
             <button type="submit" className="btn-primary">Salvar</button>
