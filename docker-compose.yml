@@ -10,6 +10,7 @@ services:
       - MSSQL_SA_PASSWORD=Smart123
     ports:
       - "1434:1433"  # Porta externa 1434, interna 1433
+      - MSSQL_PID: "Developer" # Opcional: Especifique a edição (Developer, Express, etc.)
     volumes:
       - sql_data:/var/opt/mssql
       - ./sql/init-user.sql:/docker-entrypoint-initdb.d/init-user.sql
