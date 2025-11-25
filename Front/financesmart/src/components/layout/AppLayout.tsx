@@ -59,10 +59,11 @@ export const AppLayout: React.FC = () => {
   const handleCalendarClick = () => {
     if (dateInputRef.current) {
       // showPicker() é moderno e abre o calendário nativo do navegador/celular
-      if ('showPicker' in dateInputRef.current) {
-        (dateInputRef.current as any).showPicker();
+      const inputEl = dateInputRef.current as HTMLInputElement & { showPicker?: () => void };
+      if (typeof inputEl.showPicker === 'function') {
+        inputEl.showPicker();
       } else {
-        dateInputRef.current.click(); // Fallback para navegadores antigos
+        inputEl.click(); // Fallback para navegadores antigos
       }
     }
   };
