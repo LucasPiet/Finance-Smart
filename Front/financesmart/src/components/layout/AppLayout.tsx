@@ -78,13 +78,16 @@ export const AppLayout: React.FC = () => {
     setCurrentDate(newDate);
   };
 
-  const handleDateSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  // Quando o usuário escolhe uma data específica no calendário
+    const handleDateSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
       const [year, month, day] = e.target.value.split('-').map(Number);
       const newDate = new Date(year, month - 1, day);
       setCurrentDate(newDate);
     }
   };
+
 
   // Formata a data para o valor do input (YYYY-MM-DD)
   const dateInputValue = currentDate.toISOString().split('T')[0];

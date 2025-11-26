@@ -1,6 +1,7 @@
 version: "3.9"
 
 services:
+
   # --- BANCO DE DADOS ---
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -27,7 +28,6 @@ services:
       sqlserver:
         condition: service_healthy
     volumes:
-      # Ajuste os caminhos relativos à raiz
       - ./backend/queries/tabelas_e_banco/CRIACAO_DB_E_TABELAS.sql:/usr/src/app/init.sql
       - ./backend/queries/triggers/TR_GERENCIA_SALDO.sql:/usr/src/app/triggers.sql
       - ./backend/import-data.sh:/usr/src/app/import-data.sh
