@@ -304,6 +304,11 @@ input:focus, .form-group-toggle .btn-toggle:focus-within {
 .delete-account, .delete-account .user-menu-item-icon, .delete-account span { color: var(--color-negative); }
 
 
+/* ==========================================================================
+   MEDIA QUERIES - RESPONSIVIDADE PARA DESKTOP
+   ========================================================================== 
+   Aqui começa a mágica que transforma o layout mobile em dashboard de PC
+*/
 
 /* Tablet e Telas Médias (min-width: 768px) */
 @media (min-width: 768px) {

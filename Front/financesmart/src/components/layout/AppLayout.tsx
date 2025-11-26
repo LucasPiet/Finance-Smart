@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import UserMenu from '../UserMenu/UserMenu';
 import AppMenu from '../AppMenu/AppMenu';
@@ -15,6 +15,8 @@ export const AppLayout: React.FC = () => {
   
   // Estado para controlar a data selecionada (Mês/Ano)
   const [currentDate, setCurrentDate] = useState(new Date());
+  // Ref para o input de data nativo
+  const dateInputRef = useRef<HTMLInputElement | null>(null);
 
   // Estado para o resumo financeiro (Saldo, Receitas, Despesas)
   const [resumo, setResumo] = useState({
@@ -78,16 +80,27 @@ export const AppLayout: React.FC = () => {
     setCurrentDate(newDate);
   };
 
+  // Abrir o seletor de data nativo
+  const handleCalendarClick = () => {
+    if (dateInputRef.current) {
+      // showPicker() é moderno e abre o calendário nativo do navegador/celular
+      const inputEl = dateInputRef.current as HTMLInputElement & { showPicker?: () => void };
+      if (typeof inputEl.showPicker === 'function') {
+        inputEl.showPicker();
+      } else {
+        inputEl.click(); // Fallback para navegadores antigos
+      }
+    }
+  };
 
   // Quando o usuário escolhe uma data específica no calendário
-    const handleDateSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDateSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
       const [year, month, day] = e.target.value.split('-').map(Number);
       const newDate = new Date(year, month - 1, day);
       setCurrentDate(newDate);
     }
   };
-
 
   // Formata a data para o valor do input (YYYY-MM-DD)
   const dateInputValue = currentDate.toISOString().split('T')[0];
@@ -119,9 +132,8 @@ export const AppLayout: React.FC = () => {
           <div className="icon-btn" style={{ pointerEvents: 'none' }}>
             <IconCalendar />
           </div>
-          
-          {/* Input invisível mas clicável */}
           <input 
+            ref={dateInputRef}
             type="date" 
             value={dateInputValue} 
             onChange={handleDateSelect} 
