@@ -370,3 +370,39 @@ input:focus, .form-group-toggle .btn-toggle:focus-within {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 45px; /* Espaço para o ícone não cobrir o texto */
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+/* ... outros estilos ... */
+
+/* Estilo para Mensagens de Erro (Alertas) */
+.alert-error {
+    color: #721c24;            /* Texto vermelho escuro */
+    background-color: #f8d7da; /* Fundo rosa claro */
+    border: 1px solid #f5c6cb; /* Borda rosa suave */
+    padding: 12px;
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-md);
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+}

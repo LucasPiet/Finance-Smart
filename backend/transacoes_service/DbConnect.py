@@ -33,3 +33,5 @@ class ConnDataBase:
             print("🔌 Conexão encerrada.")
         except:
             print("⚠️ Erro ao encerrar conexão.")
+            
+   

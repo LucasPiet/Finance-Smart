@@ -2,38 +2,35 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import { api } from '../services/api';
 
+// --- CORREÇÃO 1: Nomes das variáveis e extensões ---
+// Certifique-se que o nome do arquivo na pasta é exato (ex: openEye.png ou openEye.jpg)
+import eyeOpenImg from '../assets/openEye.jpg';  // Removido o 'Img' extra
+import eyeClosedImg from '../assets/closedEye.jpg';
+
 const Login: React.FC = () => {
   const navigate = useNavigate(); 
   
-  // Estados para os inputs e feedback visual
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');      // Limpa erros anteriores
-    setLoading(true); // Ativa estado de carregamento
+    setErro('');
+    setLoading(true);
 
     try {
-      // 1. Chama a API de Login
       const data = await api.login({ email, senha });
-      
-      // 2. Salva o token recebido no armazenamento do navegador
       localStorage.setItem('token', data.token);
-      
       console.log("Login efetuado com sucesso.");
-      
-      // 3. Redireciona para o Dashboard
       navigate('/dashboard'); 
-      
     } catch (err: any) {
       console.error(err);
-      // Exibe mensagem de erro amigável
-      setErro(err.message || "Falha ao fazer login. Verifique e-mail e senha.");
+      setErro(err.message || "Falha ao fazer login.");
     } finally {
-      setLoading(false); // Desativa estado de carregamento
+      setLoading(false);
     }
   };
 
@@ -59,29 +56,40 @@ const Login: React.FC = () => {
         
         <div className="form-group">
           <label htmlFor="password">Senha</label>
-          <input 
-            type="password" 
-            id="password" 
-            placeholder="Digite sua senha" 
-            required 
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-          />
+          
+          <div className="password-wrapper">
+            <input 
+          
+              type={showPassword ? "text" : "password"} 
+              id="password" 
+              placeholder="Digite sua senha" 
+              required 
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+            />
+            
+            <button 
+              type="button" 
+              className="btn-toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            >
+            
+              <img 
+                src={showPassword ? eyeOpenImg : eyeClosedImg} 
+                alt="Ver senha"
+                style={{ width: '24px', height: '24px', objectFit: 'contain' }} 
+              />
+            </button>
+          </div>
         </div>
         
-        {/* Exibição de Erro (se houver) */}
         {erro && (
-          <p style={{ 
-            color: 'var(--color-negative)', 
-            marginBottom: '15px', 
-            textAlign: 'center', 
-            fontSize: '0.9rem' 
-          }}>
+          <p style={{ color: 'var(--color-negative)', textAlign: 'center', marginBottom: '15px' }}>
             {erro}
           </p>
         )}
         
-        {/* Link atualizado para a nova tela de solicitação de e-mail */}
         <Link to="/esqueci-senha" className="forgot-password">
           Esqueci minha senha
         </Link>
