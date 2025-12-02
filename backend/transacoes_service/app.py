@@ -8,7 +8,6 @@ import transacoes
 app = FastAPI(title="Finance Service - Transações")
 
 # --- CONFIGURAÇÃO DE CORS ---
-# Permite que o Frontend (porta 5173) faça pedidos a este serviço
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -31,7 +30,8 @@ class Transacao(BaseModel):
     categoria: str
     descricao: str | None = None
     valor: float
-    date: str | None = None
+    # --- ALTERAÇÃO: Campo 'data' opcional (formato string YYYY-MM-DD ou ISO)
+    data: str | None = None
 
 # Dependência para obter o utilizador logado a partir do Token
 def get_user(credentials = Depends(security)):
@@ -51,54 +51,54 @@ def criar_transacao(body: Transacao, user = Depends(get_user)):
 
     if body.tipo not in ["C", "D"]:
         raise HTTPException(400, "Tipo deve ser C (Crédito) ou D (Débito)")
+    
+    # --- ALTERAÇÃO: Passamos body.data para a função
     novo_id = transacoes.inserir_transacao(
         user_id,
         body.tipo,
         body.categoria,
+        body.descricao, # Passando descrição que faltava na chamada original
         body.valor,
-        body.date
+        body.data 
     )
-    # Verifica se a transação foi inserida com sucesso
-    # Se novo_id for None, significa que houve um erro
+
     if not novo_id:
          raise HTTPException(500, "Erro ao criar transação no banco de dados.")
-    # Retorna o ID da nova transação
+         
     return {"status": "ok", "id": novo_id}
-#-- Fim do Endpoint de Criação --#
-@app.get("/transacoes") # Listar transações do utilizador logado    
-def listar(user = Depends(get_user)): # Dependência para obter o utilizador logado          
-    # Retorna a lista de transações do utilizador logado
+
+@app.get("/transacoes")
+def listar(user = Depends(get_user)):          
     return transacoes.listar_transacoes(user["user_id"])
 
-@app.get("/saldo") # Obter o saldo do utilizador logado     
-def get_saldo(user = Depends(get_user)): # Dependência para obter o utilizador logado   
-    # Retorna o resumo completo (saldo, receitas, despesas)
-    return transacoes.obter_resumo(user["user_id"]) #-- Fim do Endpoint de Saldo --#
+@app.get("/saldo")    
+def get_saldo(user = Depends(get_user)):   
+    return transacoes.obter_resumo(user["user_id"])
 
-@app.delete("/transacoes/{id_transacao}") # Deletar transação pelo ID   
-def deletar(id_transacao: int, user = Depends(get_user)):   # Dependência para obter o utilizador logado
-    sucesso = transacoes.deletar_transacao(id_transacao, user["user_id"])       # Tenta deletar a transação
-     # Se não for bem-sucedido, lança um erro 404
-    # Retorna mensagem de sucesso
-    if not sucesso:
-        raise HTTPException(404, "Transação não encontrada ou permissão negada")# -- Fim do Endpoint de Deleção --#
+@app.delete("/transacoes/{id_transacao}")
+def deletar(id_transacao: int, user = Depends(get_user)):
+    sucesso = transacoes.deletar_transacao(id_transacao, user["user_id"])
     
-    return {"status": "ok", "message": "Transação removida"} #-- Fim do Endpoint de Deleção --#
+    if not sucesso:
+        raise HTTPException(404, "Transação não encontrada ou permissão negada")
+    
+    return {"status": "ok", "message": "Transação removida"}
 
-@app.put("/transacoes/{id_transacao}") # Atualizar transação pelo ID    
-def atualizar(id_transacao: int, body: Transacao, user = Depends(get_user)):  # Dependência para obter o utilizador logado
+@app.put("/transacoes/{id_transacao}")
+def atualizar(id_transacao: int, body: Transacao, user = Depends(get_user)):
     if body.tipo not in ["C", "D"]:
-        raise HTTPException(400, "Tipo deve ser C ou D")  # Tenta atualizar a transação
-     # Se não for bem-sucedido, lança um erro 404
+        raise HTTPException(400, "Tipo deve ser C ou D")
+    
     sucesso = transacoes.atualizar_transacao(
         id_transacao,
         user["user_id"],
         body.tipo,
         body.categoria,
+        body.descricao, # Faltava passar descrição no update também
         body.valor
     )
-    # Retorna mensagem de sucesso
-    if not sucesso:
-        raise HTTPException(404, "Erro ao atualizar. Transação não encontrada.") # -- Fim do Endpoint de Atualização --#
 
-    return {"status": "ok", "message": "Transação atualizada"} #-- Fim do Endpoint de Atualização --#
+    if not sucesso:
+        raise HTTPException(404, "Erro ao atualizar. Transação não encontrada.")
+
+    return {"status": "ok", "message": "Transação atualizada"}

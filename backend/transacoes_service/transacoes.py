@@ -1,6 +1,7 @@
 from DbConnect import ConnDataBase
 
-def inserir_transacao(user_id, tipo, categoria, descricao, valor):
+# --- ALTERAÇÃO: Adicionado parâmetro 'data=None' ---
+def inserir_transacao(user_id, tipo, categoria, descricao, valor, data=None):
     db = ConnDataBase()
 
     try:
@@ -9,12 +10,21 @@ def inserir_transacao(user_id, tipo, categoria, descricao, valor):
             CREATE TABLE #TempID (ID INT);
         """)
 
-        # Inserção com OUTPUT para a tabela temporária
-        db.cursor.execute("""
-            INSERT INTO TRANSACOES (USUARIO_ID, TIPO, CATEGORIA, DESCRICAO, VALOR)
-            OUTPUT INSERTED.ID INTO #TempID
-            VALUES (?, ?, ?, ?, ?)
-        """, (user_id, tipo, categoria, descricao, valor))
+        # --- ALTERAÇÃO: Lógica para inserir com ou sem data específica ---
+        if data:
+            # Se a data foi fornecida pelo frontend, usamos ela na coluna DATA_TRANSACAO
+            db.cursor.execute("""
+                INSERT INTO TRANSACOES (USUARIO_ID, TIPO, CATEGORIA, DESCRICAO, VALOR, DATA_TRANSACAO)
+                OUTPUT INSERTED.ID INTO #TempID
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (user_id, tipo, categoria, descricao, valor, data))
+        else:
+            # Se não foi fornecida, o banco usa o padrão (data atual)
+            db.cursor.execute("""
+                INSERT INTO TRANSACOES (USUARIO_ID, TIPO, CATEGORIA, DESCRICAO, VALOR)
+                OUTPUT INSERTED.ID INTO #TempID
+                VALUES (?, ?, ?, ?, ?)
+            """, (user_id, tipo, categoria, descricao, valor))
 
         # Pega o ID gerado
         db.cursor.execute("SELECT ID FROM #TempID")
@@ -111,7 +121,6 @@ def deletar_transacao(id_transacao, user_id):
 def atualizar_transacao(id_transacao, user_id, tipo, categoria, descricao, valor):
     db = ConnDataBase()
     try:
-        # CORREÇÃO: Removida a coluna 'ATUALIZADO' que não existe na tabela TRANSACOES
         db.cursor.execute("""
             UPDATE TRANSACOES
             SET TIPO = ?, CATEGORIA = ?, DESCRICAO = ?, VALOR = ?
