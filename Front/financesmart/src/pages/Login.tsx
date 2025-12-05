@@ -6,6 +6,7 @@ import { api } from '../services/api';
 // Certifique-se que o nome do arquivo na pasta é exato (ex: openEye.png ou openEye.jpg)
 import eyeOpenImg from '../assets/openEye.jpg';  // Removido o 'Img' extra
 import eyeClosedImg from '../assets/closedEye.jpg';
+import Logo from '../assets/Logo.png'; // Corrigido o nome do arquivo
 
 const Login: React.FC = () => {
   const navigate = useNavigate(); 
@@ -37,6 +38,7 @@ const Login: React.FC = () => {
   return (
     <>
       <header className="auth-header">
+        <img src= {Logo} alt="" style={{ width: '50%', height: '50%', objectFit: 'contain' }}/>
         <h1>Bem-vindo!</h1>
         <p>Faça login para acessar o aplicativo.</p>
       </header>

@@ -3,6 +3,7 @@ import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import UserMenu from '../UserMenu/UserMenu';
 import AppMenu from '../AppMenu/AppMenu';
 import { api } from '../../services/api';
+import Logo from '../assets/Logo.png';
 
 // --- Ícones SVG ---
 const IconChevronLeft = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>;
@@ -114,6 +115,7 @@ export const AppLayout: React.FC = () => {
       
       {/* Cabeçalho com Navegação de Datas */}
       <header className="screen-header">
+       <img src= {Logo} alt="" style={{ width: '50%', height: '50%', objectFit: 'contain' }}/>
         <button className="icon-btn" onClick={handlePrevMonth} aria-label="Mês anterior">
           <IconChevronLeft />
         </button>
