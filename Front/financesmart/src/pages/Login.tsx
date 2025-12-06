@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import { api } from '../services/api';
-
-// --- CORREÇÃO 1: Nomes das variáveis e extensões ---
-// Certifique-se que o nome do arquivo na pasta é exato (ex: openEye.png ou openEye.jpg)
-import eyeOpenImg from '../assets/openEye.jpg';  // Removido o 'Img' extra
+import eyeOpenImg from '../assets/openEye.jpg'; 
 import eyeClosedImg from '../assets/closedEye.jpg';
-import Logo from '../assets/Logo.png'; // Corrigido o nome do arquivo
+import logo from '../assets/logo.png'; 
 
 const Login: React.FC = () => {
   const navigate = useNavigate(); 
@@ -38,7 +35,7 @@ const Login: React.FC = () => {
   return (
     <>
       <header className="auth-header">
-        <img src= {Logo} alt="" style={{ width: '50%', height: '50%', objectFit: 'contain' }}/>
+        <img src= {logo} alt="" style={{ width: '50%', height: '50%', objectFit: 'contain' }}/>
         <h1>Bem-vindo!</h1>
         <p>Faça login para acessar o aplicativo.</p>
       </header>

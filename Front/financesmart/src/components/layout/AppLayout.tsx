@@ -2,8 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import UserMenu from '../UserMenu/UserMenu';
 import AppMenu from '../AppMenu/AppMenu';
+
+// --- CORREÇÃO AQUI: Importação com chaves {} em vez de * as api ---
 import { api } from '../../services/api';
-import Logo from '../assets/Logo.png';
+
+// Certifique-se que o nome do arquivo da logo está correto (case sensitive no Linux)
+import logo from '../../assets/logo.png'; 
 
 // --- Ícones SVG ---
 const IconChevronLeft = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>;
@@ -26,11 +30,16 @@ export const AppLayout: React.FC = () => {
     despesas: 0
   });
 
-  // Carregar dados do resumo financeiro ao iniciar
+  // Carregar dados do resumo financeiro SEMPRE que a data mudar
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const dados = await api.getSaldo();
+        // Extrai o mês (1-12) e ano para filtrar na API
+        const mes = currentDate.getMonth() + 1;
+        const ano = currentDate.getFullYear();
+
+        const dados = await api.getSaldo(mes, ano);
+        
         setResumo({
           saldo: dados.saldo || 0,
           receitas: dados.receitas || 0,
@@ -40,8 +49,9 @@ export const AppLayout: React.FC = () => {
         console.error("Erro ao carregar resumo:", error);
       }
     };
+
     carregarDados();
-  }, []); // Executa uma vez na montagem do componente
+  }, [currentDate]); 
 
   // --- Funções de Autenticação e Conta ---
 
@@ -84,17 +94,15 @@ export const AppLayout: React.FC = () => {
   // Abrir o seletor de data nativo
   const handleCalendarClick = () => {
     if (dateInputRef.current) {
-      // showPicker() é moderno e abre o calendário nativo do navegador/celular
       const inputEl = dateInputRef.current as HTMLInputElement & { showPicker?: () => void };
       if (typeof inputEl.showPicker === 'function') {
         inputEl.showPicker();
       } else {
-        inputEl.click(); // Fallback para navegadores antigos
+        inputEl.click();
       }
     }
   };
 
-  // Quando o usuário escolhe uma data específica no calendário
   const handleDateSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
       const [year, month, day] = e.target.value.split('-').map(Number);
@@ -103,19 +111,20 @@ export const AppLayout: React.FC = () => {
     }
   };
 
-  // Formata a data para o valor do input (YYYY-MM-DD)
   const dateInputValue = currentDate.toISOString().split('T')[0];
 
-  // Helper para formatar moeda (BRL)
   const formatMoney = (val: number) => 
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
   return (
     <div className="app-screen">
-      
-      {/* Cabeçalho com Navegação de Datas */}
       <header className="screen-header">
-       <img src= {Logo} alt="" style={{ width: '50%', height: '50%', objectFit: 'contain' }}/>
+       <img 
+          src={logo} 
+          alt="Logo Finance Smart" 
+          style={{ height: '70px', width: 'auto', objectFit: 'contain' }}
+        />
+        
         <button className="icon-btn" onClick={handlePrevMonth} aria-label="Mês anterior">
           <IconChevronLeft />
         </button>
@@ -128,9 +137,7 @@ export const AppLayout: React.FC = () => {
           <IconChevronRight />
         </button>
         
-        {/* Botão de Calendário com Input Nativo Sobreposto */}
         <div style={{ position: 'relative', width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          {/* Ícone visual */}
           <div className="icon-btn" style={{ pointerEvents: 'none' }}>
             <IconCalendar />
           </div>
@@ -153,10 +160,7 @@ export const AppLayout: React.FC = () => {
         </div>
       </header>
 
-      {/* Conteúdo Principal */}
       <main className="screen-content">
-        
-        {/* Card de Balanço */}
         <section className="balance-card">
           <h3>Balanço total</h3>
           <p className="balance-total" style={{ color: resumo.saldo < 0 ? 'var(--color-negative)' : 'inherit' }}>
@@ -175,7 +179,6 @@ export const AppLayout: React.FC = () => {
           </div>
         </section>
 
-        {/* Navegação por Abas */}
         <nav className="tabs-nav">
           <ul>
             <li><NavLink to="/dashboard" end className={({ isActive }) => isActive ? 'active' : ''}>Todos</NavLink></li> 
@@ -184,13 +187,11 @@ export const AppLayout: React.FC = () => {
           </ul>
         </nav>
 
-        {/* Lista de Transações (Renderizada pelas rotas filhas) */}
         <section className="transactions-list">
           <Outlet context={{ currentDate }} />
         </section>
       </main>
 
-      {/* Rodapé de Navegação */}
       <footer className="app-footer-nav">
         <div className="nav-item">
           <UserMenu 
