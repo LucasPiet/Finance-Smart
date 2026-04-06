@@ -1,80 +1,79 @@
 # 💰 Finance Smart
 
-Sistema de gestão financeira baseado em **arquitetura de microserviços**, desenvolvido com foco em escalabilidade, separação de responsabilidades e simulação de ambiente real de produção.
+Sistema de gestão financeira baseado em **arquitetura de microserviços**, desenvolvido com **FastAPI**, com foco em escalabilidade, separação de responsabilidades e simulação de ambiente real de produção.
 
 ---
 
 ## 📌 Overview
 
-O **Finance Smart** é uma aplicação que permite o controle de receitas e despesas de usuários, utilizando serviços independentes para autenticação e gerenciamento financeiro.
+O **Finance Smart** é uma aplicação backend que permite o gerenciamento de receitas e despesas de usuários, utilizando serviços independentes para autenticação e controle financeiro.
 
-O projeto foi desenvolvido com o objetivo de aplicar conceitos modernos de engenharia de software, incluindo:
+O projeto foi desenvolvido com foco em:
 - Arquitetura de microserviços
-- APIs REST
+- APIs REST performáticas com FastAPI
 - Conteinerização com Docker
-- Manipulação de dados com SQL
+- Persistência de dados com banco relacional
+- Boas práticas de engenharia de software
 
 ---
 
 ## 🏗️ Arquitetura
 
-O sistema é dividido em múltiplos serviços independentes:
+O sistema é dividido em serviços independentes:
 
 - **Auth Service**
-  - Responsável por autenticação e gerenciamento de usuários
-  - (Preparado para uso com JWT)
+  - Responsável pela autenticação de usuários
+  - Preparado para uso com JWT
 
 - **Transaction Service**
   - Gerencia receitas e despesas
-  - Controle de saldo do usuário
+  - Responsável pelo controle de saldo
 
-- **Banco de Dados**
+- **Database**
   - Banco relacional
-  - Uso de **triggers** para cálculo automático de saldo
+  - Uso de triggers para garantir consistência do saldo
 
 ---
 
 ## ⚙️ Tecnologias Utilizadas
 
-- **Linguagem:** Python  
-- **Banco de Dados:** SQL (relacional)  
-- **Containerização:** Docker  
-- **Arquitetura:** Microservices  
-- **Comunicação:** REST APIs (HTTP/JSON)  
-- **Controle de versão:** Git  
+- **Backend:** FastAPI (Python)
+- **Banco de Dados:** SQL (relacional)
+- **Containerização:** Docker / Docker Compose
+- **Comunicação:** REST APIs (HTTP/JSON)
+- **Versionamento:** Git
 
 ---
 
 ## 🔥 Decisões Técnicas
 
-- **Microserviços**  
-  Separação entre autenticação e regras de negócio para permitir escalabilidade e manutenção independente.
+- **FastAPI**
+  - Alta performance
+  - Tipagem com Pydantic
+  - Documentação automática (Swagger/OpenAPI)
 
-- **Uso de Triggers no Banco**  
-  Garantia de consistência do saldo independentemente da aplicação.
+- **Microserviços**
+  - Separação de responsabilidades
+  - Possibilidade de escalar serviços individualmente
 
-- **APIs REST**  
-  Comunicação simples, padronizada e desacoplada entre serviços.
+- **Triggers no Banco**
+  - Garantia de consistência do saldo independentemente da aplicação
 
-- **Docker**  
-  Facilita execução em qualquer ambiente e simula cenário real de deploy.
+- **Docker**
+  - Ambiente isolado e replicável
+  - Simulação de cenário de produção
 
 ---
 
 ## ▶️ Como Executar o Projeto
 
 ### Pré-requisitos
-- Docker instalado
+- Docker
 - Docker Compose
 
 ### Passos
 
 ```bash
-# Clonar o repositório
-git clone https://github.com/LucasPiet/Finance-Smart
-
-# Entrar na pasta
+git clone https://github.com/LucasPiet/Finance-Smart.git
 cd Finance-Smart
-
-# Subir os serviços
 docker-compose up --build
