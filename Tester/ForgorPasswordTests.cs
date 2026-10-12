@@ -8,7 +8,6 @@ namespace FinanceSmart.Tests.Tests;
 [Category("Email")]
 public class ForgotPasswordTests : PageTest
 {
-    // TODO: use um e-mail de usuário que EXISTA no sistema (cadastre antes pela tela ou API)
     private const string UserEmail = "usuario.teste@financesmart.local";
 
     private IAPIRequestContext _mailpit = null!;
