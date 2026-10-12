@@ -16,7 +16,7 @@ public class ForgotPasswordTests : PageTest
     public async Task Setup()
     {
         _mailpit = await Playwright.APIRequest.NewContextAsync(new() { BaseURL = TestConfig.MailpitUrl });
-        await _mailpit.DeleteAsync("/api/v1/messages"); // caixa limpa antes de cada teste
+        await _mailpit.DeleteAsync("/api/v1/messages"); 
     }
 
     [TearDown]
@@ -32,7 +32,7 @@ public class ForgotPasswordTests : PageTest
         await page.GetByRole(AriaRole.Textbox, new() { Name = "E-mail" }).ClickAsync();
         await page.GetByRole(AriaRole.Textbox, new() { Name = "E-mail" }).FillAsync("lucaspietscher@gmail.com");
         
-        // A tela deve dar retorno ao usuário informando que o e-mail de recuperação foi enviado
+     
         await page.GetByRole(AriaRole.Button, new() { Name = "Enviar" }).ClickAsync();
         await Expect(Page.GetByText("e-mail", new() { Exact = false })).ToBeVisibleAsync();
 
@@ -47,7 +47,6 @@ public class ForgotPasswordTests : PageTest
         await Page.GetByText("Esqueci minha senha").ClickAsync();
         await Page.GetByLabel("E-mail").FillAsync(UserEmail);
 
-        // Captura a chamada do front para o auth_service (porta 8001)
         var response = await Page.RunAndWaitForResponseAsync(
             async () => await Page.GetByRole(AriaRole.Button, new() { Name = "Enviar" }).ClickAsync(),
             r => r.Url.StartsWith(TestConfig.AuthUrl) && r.Request.Method == "POST");
@@ -55,7 +54,6 @@ public class ForgotPasswordTests : PageTest
         Assert.That(response.Ok, Is.True, $"API retornou {response.Status}");
     }
 
-    // Consulta a API do Mailpit até o e-mail chegar (ou estourar o tempo)
     private async Task<JsonElement?> WaitForEmailAsync(string toEmail, TimeSpan timeout)
     {
         var deadline = DateTime.UtcNow + timeout;
