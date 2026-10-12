@@ -45,7 +45,6 @@ public class DatabaseTests
     [Test]
     public async Task Trigger_GerenciaSaldo_ShouldExist()
     {
-        // O arquivo do repositório se chama TR_GERENCIA_SALDO.sql
         await using var cmd = new SqlCommand(
             "SELECT COUNT(*) FROM sys.triggers WHERE name LIKE '%SALDO%'", _conn);
         var count = (int)(await cmd.ExecuteScalarAsync())!;
