@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FinanceSmart.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12cbdcc5f159dabf914214c3e18bc342d7dbb37b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8dcab0d408bccdfe0d560cda870f086d666c9ee")]
 [assembly: System.Reflection.AssemblyProductAttribute("FinanceSmart.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FinanceSmart.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
